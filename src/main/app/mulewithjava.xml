@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <spring:beans>
+        <spring:bean id="Bean" name="Bean" class="com.mule.example.AddingTwoNames"/>
+    </spring:beans>
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="parent-flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/name" doc:name="HTTP"/>
+        <logger message="firstName: #[message.inboundProperties.'http.query.params'.firstName];lastName: #[message.inboundProperties.'http.query.params'.lastName];" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="firstName" value="#[message.inboundProperties.'http.query.params'.firstName];" doc:name="First Name"/>
+        <set-variable variableName="lastName" value="#[message.inboundProperties.'http.query.params'.lastName]" doc:name="Last Name"/>
+        <custom-transformer class="com.mule.example.AddingTwoNames" doc:name="Java"/>
+    </flow>
+    <flow name="second-flow">
+        <logger message="Output from Java Component : Payload: #[payload]; Flow Variable: #[flowVars.'name']" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
